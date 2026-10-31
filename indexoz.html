@@ -1,0 +1,158 @@
+<!DOCTYPE html><html lang="kk"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><title>Tandyr Nan</title>
+<style>
+:root{--bg:#faf6f0;--cd:#fff;--tx:#2b2118;--mt:#7a6a5a;--bd:#e6dccf;--pr:#b45309;--ok:#15803d;--er:#b91c1c;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1712;--cd:#272019;--tx:#f3ebe0;--mt:#b3a490;--bd:#3a3027;--pr:#d97706;--ok:#4ade80;--er:#f87171;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1c1712;--cd:#272019;--tx:#f3ebe0;--mt:#b3a490;--bd:#3a3027;--pr:#d97706;--ok:#4ade80;--er:#f87171;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.5 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.top{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;background:var(--pr);color:#fff;font-size:18px}
+.lay{display:flex}nav{width:210px;padding:12px;display:flex;flex-direction:column;gap:4px;flex-shrink:0}
+nav a{padding:10px 12px;border-radius:8px;cursor:pointer}nav a.on{background:var(--pr);color:#fff}
+main{flex:1;min-width:0;padding:16px}h2{margin:0 0 12px}h3{margin:0 0 10px}
+.g{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.c{background:var(--cd);border:1px solid var(--bd);border-radius:12px;padding:14px;margin-bottom:12px}.c small{display:block;color:var(--mt)}.c>b{font-size:22px}
+.f{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input,select{padding:9px 10px;border:1px solid var(--bd);border-radius:8px;background:var(--bg);color:var(--tx);font:inherit;min-width:0}
+button{padding:9px 14px;border:0;border-radius:8px;background:var(--pr);color:#fff;font:inherit;cursor:pointer}
+button.s{background:transparent;color:var(--tx);border:1px solid var(--bd)}button.d{background:#b91c1c}button:disabled{opacity:.4}
+.sc{overflow-x:auto}table{border-collapse:collapse;width:100%}th,td{padding:8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}th{color:var(--mt);font-size:13px}
+.bars{display:flex;gap:6px;align-items:flex-end}.bars div{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center}.bars i{width:70%;background:var(--pr);border-radius:4px 4px 0 0;min-height:2px}
+.tag{padding:3px 10px;border-radius:99px;border:1px solid var(--bd)}.tag.ok{color:var(--ok);border-color:var(--ok)}
+.er{color:var(--er)}.okc{color:var(--ok)}.m{color:var(--mt)}.pi{width:96px;margin-right:6px}
+#ts{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);padding:12px 18px;border-radius:10px;background:var(--tx);color:var(--bg);border-left:6px solid;opacity:0;pointer-events:none;transition:.2s;z-index:9;max-width:90%}
+#ts.show{opacity:1}#ts.ok{border-color:var(--ok)}#ts.er{border-color:var(--er)}
+.ck{max-width:480px;margin:0 auto;padding:16px;text-align:center}.nl{display:grid;gap:8px;margin:12px 0}
+.nb{padding:16px;font-size:18px;background:var(--cd);color:var(--tx);border:2px solid var(--bd)}.nb.on{border-color:var(--pr);background:var(--pr);color:#fff}
+.big{width:100%;padding:20px;font-size:22px;font-weight:700;background:#15803d}
+.rs{padding:28px 16px;border-radius:14px;font-size:24px;font-weight:700;margin:16px 0;color:#fff;background:#15803d}.rs.wr{background:#b45309}.rs small{color:#fff;font-weight:400}
+.qb{background:#fff;color:#000;padding:12px;width:240px;max-width:100%;border-radius:8px;margin:8px 0;text-align:center;box-sizing:border-box}.qb svg{width:100%;height:auto}.qb small{word-break:break-all;color:#000}
+@media(max-width:760px){.lay{flex-direction:column}nav{width:auto;flex-direction:row;overflow-x:auto;padding:8px}nav a{white-space:nowrap}}
+</style></head><body><div id="app"></div><div id="ts"></div>
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"></script>
+<script>
+const V=id=>document.getElementById(id).value,TZ='Asia/Almaty',K='tandyrnan1';
+const today=()=>new Date().toLocaleDateString('en-CA',{timeZone:TZ}),nowT=()=>new Date().toLocaleTimeString('en-GB',{timeZone:TZ});
+const uid=()=>Math.random().toString(36).slice(2,9),fmt=n=>(+n||0).toLocaleString('ru-RU')+' ₸';
+const addD=(d,n)=>{const x=new Date(d+'T00:00:00Z');x.setUTCDate(x.getUTCDate()+n);return x.toISOString().slice(0,10)};
+const wk=d=>addD(d,-((new Date(d+'T00:00:00Z').getUTCDay()+5)%7));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const base=()=>location.href.split('#')[0];
+function seed(){const t=today(),s={n:6,e:[],a:[],q:[],y:[],l:[],url:''};
+[['Айгерім Сейітқызы',10000],['Нұрлан Омаров',12000],['Дәурен Ахметов',11000],['Мадина Қасымова',10000],['Ербол Жақсылықов',9000]].forEach((x,i)=>s.e.push({id:'E00'+(i+1),name:x[0],rate:x[1],hired:addD(t,-90-i*20),on:i<4}));
+for(let i=0;i<8;i++){const d=addD(t,-i);if(new Date(d+'T00:00:00Z').getUTCDay()==1)continue;
+s.e.slice(0,4).forEach((e,j)=>{if((i==0&&j>1)||(i&&(i+j)%6==3))return;s.a.push({id:d+'_'+e.id,emp:e.id,date:d,time:'0'+(6+j%2)+':'+String(10+i+j*3).padStart(2,'0')+':00',rate:e.rate})});
+['Тандыр нан','Батон','Қара нан'].forEach((n,k)=>s.q.push({id:uid(),date:d,type:n,qty:[400,150,100][k]+(i*37+k*53)%90,note:''}))}
+s.y.push({id:uid(),emp:'E001',week:addD(wk(t),-7),amt:20000,date:addD(wk(t),-1)});return s}
+let S=null;try{S=JSON.parse(localStorage.getItem(K))}catch(e){}
+if(!S||!S.e)S=seed();
+const COLS={e:'emp',a:'att',q:'prod',y:'pay',l:'log'},prev={e:{},a:{},q:{},y:{},l:{}},LINK=location.origin+location.pathname,sb=window.CFG&&CFG.url&&window.supabase?supabase.createClient(CFG.url,CFG.key):null;
+let db=null,isAdm=true,dbs='wait',warned=0;
+const er=x=>{if(!warned++)toast('Деректер сақталмады: '+((x&&x.code)||''),0)};
+const row=(c,o)=>c=='a'?{id:o.id,emp:o.emp,day:o.date,data:o}:{id:o.id,data:o};
+function save(){if(!db){try{localStorage.setItem(K,JSON.stringify(S))}catch(e){}return}
+for(const c in COLS){const cur={};S[c].forEach(o=>cur[o.id]=JSON.stringify(o));
+const up=Object.keys(cur).filter(i=>prev[c][i]!=cur[i]).map(i=>row(c,JSON.parse(cur[i]))),dl=Object.keys(prev[c]).filter(i=>!(i in cur));prev[c]=cur;
+if(up.length)sb.from(COLS[c]).upsert(up).then(r=>r.error&&er(r.error));
+if(dl.length)sb.from(COLS[c]).delete().in('id',dl).then(r=>r.error&&er(r.error))}}
+async function loadAll(){for(const c in COLS){const r=await sb.from(COLS[c]).select('data');if(r.error){er(r.error);continue}S[c]=r.data.map(x=>x.data);prev[c]={};S[c].forEach(o=>prev[c][o.id]=JSON.stringify(o))}}
+async function loadW(){const[w,d]=await Promise.all([sb.rpc('workers'),sb.rpc('today_done')]);S.e=(w.data||[]).map(x=>({id:x.id,name:x.name,rate:0,on:true}));S.a=(d.data||[]).map(x=>({emp:x.emp,date:today(),time:x.t}))}
+let P='home',ed=null,pend='',wsel=wk(today()),msel=today().slice(0,7),ad=today(),sel='',res=null;
+const E=id=>S.e.find(e=>e.id==id)||{name:'?',rate:0},act=()=>S.e.filter(e=>e.on);
+const lg=m=>{S.l.unshift({id:uid(),t:today()+' '+nowT(),m});S.l=S.l.sort((a,b)=>a.t<b.t?1:-1).slice(0,200)};
+const sum=(a,f)=>a.reduce((s,x)=>s+f(x),0);
+function toast(m,ok=1){const t=document.getElementById('ts');t.textContent=m;t.className='show '+(ok?'ok':'er');clearTimeout(toast.h);toast.h=setTimeout(()=>t.className='',2600)}
+const tbl=(h,r)=>`<div class="sc"><table><tr>${h.map(x=>`<th>${x}</th>`).join('')}</tr>${r.map(x=>`<tr>${x.map(y=>`<td>${y}</td>`).join('')}</tr>`).join('')||'<tr><td colspan="9" class="m">Жазба жоқ</td></tr>'}</table></div>`;
+const card=(l,v)=>`<div class="c"><small>${l}</small><b>${v}</b></div>`;
+const bt=(l,f,c='s')=>`<button class="${c}" onclick="${f}">${l}</button>`;
+const dbt=(t,id)=>bt(pend==t+id?'Растау ✓':'Өшіру',`X('${t}','${id}')`,'d');
+function wrows(w){return S.e.map(e=>{const A=S.a.filter(a=>a.emp==e.id&&wk(a.date)==w),Y=S.y.filter(p=>p.emp==e.id&&p.week==w),acc=sum(A,a=>a.rate),paid=sum(Y,p=>p.amt);return{e,rate:e.rate,days:A.length,acc,paid,debt:acc-paid,last:Y.length?Y[Y.length-1].date:'—'}}).filter(r=>r.days||r.paid)}
+function mrows(m){return S.e.map(e=>{const A=S.a.filter(a=>a.emp==e.id&&a.date.startsWith(m));return{e,days:A.length,acc:sum(A,a=>a.rate),paid:sum(S.y.filter(p=>p.emp==e.id&&p.date.startsWith(m)),p=>p.amt)}}).filter(r=>r.days||r.paid)}
+function reg(id,d,tm){if(S.a.some(a=>a.emp==id&&a.date==d))return false;S.a.push({id:d+'_'+id,emp:id,date:d,time:tm,rate:E(id).rate});save();return true}
+const NAV=[['home','Басты бет','🏠'],['emp','Қызметкерлер','👥'],['att','Жұмысқа қатысу','🕘'],['prod','Нан өндірісі','🍞'],['pay','Жалақы есебі','💰'],['xl','Excel есептері','📊'],['set','Баптаулар','⚙️']];
+const PG={
+home(){const t=today(),w=wk(t),ac=act(),ids=S.a.filter(a=>a.date==t).map(a=>a.emp),came=ac.filter(e=>ids.includes(e.id)).length,pd=d=>sum(S.q.filter(q=>q.date==d),q=>q.qty),days=[...Array(7)].map((_,i)=>addD(t,i-6)),mx=Math.max(1,...days.map(pd));
+return `<h2>Басты бет</h2>${db&&isAdm&&!S.e.length?'<div class="c">Дерекқор бос. «Қызметкерлер» бөлімінен алғашқы қызметкерді қосыңыз.</div>':''}<div class="g">${card('Барлық қызметкер',ac.length)}${card('Бүгін келгендер',came)}${card('Бүгін келмегендер',ac.length-came)}${card('Бүгінгі нан',pd(t))}${card('Апталық өндіріс',sum(S.q.filter(q=>wk(q.date)==w),q=>q.qty))}${card('Апталық жалақы',fmt(sum(wrows(w),r=>r.acc)))}</div>
+<div class="c"><h3>Соңғы 7 күндегі өндіріс</h3><div class="bars">${days.map(d=>`<div><i style="height:${Math.round(pd(d)/mx*100)}px"></i><small>${pd(d)}</small><small>${d.slice(5)}</small></div>`).join('')}</div></div>
+<div class="c"><h3>Соңғы тіркелген қызметкерлер</h3>${tbl(['ID','Аты-жөні','Қабылданған күні'],S.e.slice(-5).reverse().map(e=>[e.id,esc(e.name),e.hired]))}</div>`},
+emp(){const x=ed?E(ed):{name:'',rate:'',hired:today()};
+return `<h2>Қызметкерлер</h2><div class="c"><h3>${ed?'Өзгерту: '+ed:'Жаңа қызметкер'}</h3><div class="f"><input id="n" placeholder="Аты-жөні" value="${esc(x.name)}"><input id="r" type="number" placeholder="Күндік жалақы, ₸" value="${x.rate}"><input id="h" type="date" value="${x.hired}"><button onclick="saveE()">${ed?'Сақтау':'Қосу'}</button>${ed?bt('Бас тарту',"go('emp')"):''}</div></div>
+<div class="c">${tbl(['ID','Аты-жөні','Күндік жалақы','Қабылданған','Мәртебесі',''],S.e.map(e=>[e.id,esc(e.name),fmt(e.rate),e.hired,`<span class="tag ${e.on?'ok':''}">${e.on?'Белсенді':'Белсенді емес'}</span>`,bt('Өзгерту',`ed='${e.id}';render()`)+' '+bt(e.on?'Шығару':'Қайтару',`tg('${e.id}')`)+' '+dbt('e',e.id)]))}</div>`},
+att(){const r=S.a.filter(a=>a.date==ad).sort((x,y)=>x.time>y.time?1:-1),ids=r.map(a=>a.emp),miss=act().filter(e=>!ids.includes(e.id));
+return `<h2>Жұмысқа қатысу</h2><div class="c"><div class="f"><label>Күні: <input type="date" value="${ad}" onchange="ad=this.value||today();render()"></label></div></div>
+<div class="c"><h3>Қолмен тіркеу (әкімші)</h3><div class="f"><select id="ae">${miss.map(e=>`<option value="${e.id}">${esc(e.name)}</option>`).join('')}</select><input type="time" id="at" step="1" value="08:00:00"><button onclick="addA()">Тіркеу</button></div></div>
+<div class="c"><h3>Келгендер: ${r.length}</h3>${tbl(['Аты-жөні','Уақыты','Тариф',''],r.map(a=>[esc(E(a.emp).name),a.time,fmt(a.rate),dbt('a',a.id)]))}<p class="m">Келмегендер: ${miss.map(e=>esc(e.name)).join(', ')||'жоқ'}</p></div>`},
+prod(){const x=ed?S.q.find(q=>q.id==ed):{date:today(),type:'',qty:'',note:''},t=today(),m=t.slice(0,7),w=wk(t),sm=f=>sum(S.q.filter(f),q=>q.qty),bm={};
+S.q.filter(q=>q.date.startsWith(m)).forEach(q=>bm[q.type]=(bm[q.type]||0)+q.qty);
+return `<h2>Нан өндірісі</h2><div class="g">${card('Бүгін',sm(q=>q.date==t))}${card('Осы апта',sm(q=>wk(q.date)==w))}${card('Осы ай',sm(q=>q.date.startsWith(m)))}</div>
+<div class="c"><h3>${ed?'Жазбаны өзгерту':'Жаңа өндіріс жазбасы'}</h3><div class="f"><input type="date" id="qd" value="${x.date}"><input id="qt" list="tl" placeholder="Нан түрі" value="${esc(x.type)}"><datalist id="tl">${[...new Set(S.q.map(q=>q.type))].map(v=>`<option value="${esc(v)}">`).join('')}</datalist><input id="qn" type="number" placeholder="Саны" value="${x.qty}"><input id="qc" placeholder="Түсініктеме" value="${esc(x.note)}"><button onclick="saveQ()">${ed?'Сақтау':'Қосу'}</button>${ed?bt('Бас тарту',"go('prod')"):''}</div></div>
+<div class="c"><h3>Нан түрлері бойынша (осы ай)</h3>${tbl(['Нан түрі','Саны'],Object.entries(bm).map(([k,v])=>[esc(k),v]))}</div>
+<div class="c"><h3>Жазбалар</h3>${tbl(['Күні','Нан түрі','Саны','Түсініктеме',''],S.q.slice().sort((a,b)=>a.date<b.date?1:-1).slice(0,40).map(q=>[q.date,esc(q.type),q.qty,esc(q.note),bt('Өзгерту',`ed='${q.id}';render()`)+' '+dbt('q',q.id)]))}</div>`},
+pay(){const w=wsel,end=addD(w,5),R=wrows(w),ready=today()>=end,T=k=>sum(R,r=>r[k]);
+return `<h2>Жалақы есебі</h2><div class="c"><div class="f">${bt('◀',"wsel=addD(wsel,-7);render()")}<b>${w} — ${end}</b>${bt('▶',"wsel=addD(wsel,7);render()")}<span class="tag ${ready?'ok':''}">${ready?'Апталық есеп дайын':'Апта жүріп жатыр'}</span></div><p class="m">Апта: сейсенбіден жексенбіге дейін. Дүйсенбі — демалыс. Жалақы = әр күнге енгізілген сомалардың қосындысы.</p></div>
+<div class="c">${tbl(['Аты-жөні','Негізгі тариф','Күн','Есептелген','Төленген','Қалған қарыз','Төлем күні','Төлем'],R.map(r=>[esc(r.e.name),fmt(r.rate),r.days,fmt(r.acc),fmt(r.paid),`<b class="${r.debt>0?'er':'okc'}">${fmt(r.debt)}</b>`,r.last,r.debt>0?`<input class="pi" type="number" id="p${r.e.id}" value="${r.debt}">`+bt('Төлеу',`payE('${r.e.id}')`,''):'✓ Төленді']).concat(R.length?[['<b>Барлығы</b>','','',`<b>${fmt(T('acc'))}</b>`,fmt(T('paid')),`<b>${fmt(T('debt'))}</b>`,'','']]:[]))}</div>
+<div class="c"><div class="f"><b>Айлық есеп</b><input type="month" value="${msel}" onchange="msel=this.value||msel;render()"></div><p class="m">Жалақы жұмыс істеген күннің айына есептеледі; төлемдер төлем жасалған айда көрсетіледі.</p>${tbl(['Аты-жөні','Жұмыс күні','Есептелген жалақы','Нақты төлем'],mrows(msel).map(r=>[esc(r.e.name),r.days,fmt(r.acc),fmt(r.paid)]))}</div>`},
+xl(){return `<h2>Excel есептері</h2><div class="c"><p>Файлда 5 парақ болады: қызметкерлер тізімі, жұмысқа қатысу тарихы, күнделікті нан өндірісі, апталық жалақы, айлық есеп.</p><button onclick="toXl()">⬇ Excel файлын жүктеу</button></div>`},
+set(){return `<h2>Баптаулар</h2><p class="m">${db?'🟢 Ортақ дерекқор қосулы: деректер барлық құрылғыда бір':'⚪ Жергілікті режим: деректер тек осы құрылғыда'}</p><div class="c"><h3>Барлық қызметкерге ортақ бір QR-код</h3><p class="m">Басып шығарып, наубайхана кіреберісіне жабыстырыңыз. Сілтеме тұрақты, кейін де осы QR қолданылады.</p><div class="qb" id="qr"></div><div class="f"><input id="u" style="flex:1" value="${esc(S.url||LINK)}">${bt('Сілтемені сақтау','sU()','')}${bt('Тіркеу бетін ашу',"location.hash='checkin'")}</div></div>
+<div class="c"><h3>Әкімші өзгерістер журналы</h3>${tbl(['Уақыты','Әрекет'],S.l.slice().sort((a,b)=>a.t<b.t?1:-1).slice(0,30).map(l=>[l.t,esc(l.m)]))}</div><div class="c">${db?'':bt(pend=='r'?'Растау ✓':'Демо деректерін қалпына келтіру',"X('r','')",'d')}</div>`}};
+function go(p){P=p;ed=null;pend='';render()}
+function tg(id){const e=E(id);e.on=!e.on;lg((e.on?'Қайта қабылданды: ':'Жұмыстан шықты: ')+e.name);save();render()}
+function saveE(){const n=V('n').trim(),r=+V('r'),h=V('h');if(n.length<2)return toast('Аты-жөнін енгізіңіз',0);if(!(r>0))return toast('Күндік жалақы 0-ден үлкен болуы керек',0);if(!h)return toast('Күнді таңдаңыз',0);
+if(ed){const e=E(ed);lg(`Өзгертілді: ${e.name} ${e.rate}₸ → ${n} ${r}₸`);Object.assign(e,{name:n,rate:r,hired:h})}else{S.e.push({id:'E'+String(Math.max(0,...S.e.map(e=>+e.id.slice(1)))+1).padStart(3,'0'),name:n,rate:r,hired:h,on:true});lg('Қызметкер қосылды: '+n)}
+ed=null;save();render();toast('Сақталды')}
+function saveQ(){const d=V('qd'),t=V('qt').trim(),n=Math.round(+V('qn')),c=V('qc').trim();if(!d)return toast('Күнді таңдаңыз',0);if(!t)return toast('Нан түрін енгізіңіз',0);if(!(n>0))return toast('Саны 0-ден үлкен болуы керек',0);
+if(ed){Object.assign(S.q.find(q=>q.id==ed),{date:d,type:t,qty:n,note:c});lg(`Өндіріс өзгертілді: ${t} ${n}`)}else{S.q.push({id:uid(),date:d,type:t,qty:n,note:c});lg(`Өндіріс қосылды: ${t} ${n} (${d})`)}
+ed=null;save();render();toast('Сақталды')}
+function addA(){const id=V('ae');if(!id)return toast('Қызметкерді таңдаңыз',0);let tm=V('at')||'08:00:00';if(tm.length==5)tm+=':00';
+if(!reg(id,ad,tm))return toast('Бұл күні тіркелген',0);lg(`Қатысу қолмен қосылды: ${E(id).name} ${ad} ${tm}`);save();render();toast('Тіркелді')}
+function payE(id){const a=+V('p'+id),r=wrows(wsel).find(x=>x.e.id==id);if(!(a>0))return toast('Төлем сомасын енгізіңіз',0);if(a>r.debt)return toast('Сома қарыздан көп болмауы керек',0);
+S.y.push({id:uid(),emp:id,week:wsel,amt:a,date:today()});lg(`Төлем: ${r.e.name} ${a}₸ (апта ${wsel})`);save();render();toast('Төлем сақталды')}
+function X(t,id){const k=t+id;if(pend!=k){pend=k;return render()}pend='';
+if(t=='r'){S=seed();ed=null}
+else if(t=='e'){const e=E(id);S.e=S.e.filter(x=>x.id!=id);S.a=S.a.filter(a=>a.emp!=id);S.y=S.y.filter(p=>p.emp!=id);lg('Қызметкер өшірілді: '+e.name)}
+else if(t=='a'){const a=S.a.find(x=>x.id==id);lg(`Қатысу өшірілді: ${E(a.emp).name} ${a.date}`);S.a=S.a.filter(x=>x.id!=id)}
+else{const q=S.q.find(x=>x.id==id);lg(`Өндіріс өшірілді: ${q.type} ${q.qty}`);S.q=S.q.filter(x=>x.id!=id)}
+save();render();toast('Орындалды')}
+function sU(){S.url=V('u').trim();lg('QR сілтемесі өзгертілді');save();render();toast('Сақталды')}
+function qr(){const el=document.getElementById('qr');if(!el)return;const u=(S.url||LINK).split('#')[0]+'#checkin';try{const q=qrcode(0,'M');q.addData(u);q.make();el.innerHTML=q.createSvgTag(6,4)+`<small>${esc(u)}</small>`}catch(e){el.textContent=u}}
+function chk(){const done=S.a.filter(a=>a.date==today()).map(a=>a.emp);
+return `<div class="ck"><h1>🍞 Tandyr Nan</h1><p class="m" id="clk">${today()} ${nowT()}</p>${dbs=='off'&&window.claude?'<p class="er">Ортақ дерекқорға қосылу мүмкін болмады: Claude аккаунтына кіріп, сілтемені қайта ашыңыз. Қазір тіркеу тек осы құрылғыда сақталады.</p>':''}${res?`<div class="rs ${res.ok?'':'wr'}">${res.ok?'✅ Сәтті тіркелді!':res.dev?'Бұл құрылғыдан бүгін басқа адам тіркелген':'Сіз бүгін тіркеліп қойдыңыз'}<br><small>${res.dev?(res.n?esc(res.n)+' тіркелген. ':'')+'Әр қызметкер өз телефонынан тіркелуі керек':esc(res.n)+' · '+res.t}</small></div>${bt('Басқа қызметкер',"res=null;sel='';render()")}`:`<h3>Аты-жөніңізді таңдаңыз</h3><div class="nl">${act().map(e=>`<button class="nb ${sel==e.id?'on':''}" onclick="sel='${e.id}';render()">${esc(e.name)}${done.includes(e.id)?' ✓':''}</button>`).join('')||'<p class="m">Белсенді қызметкер жоқ</p>'}</div><button class="big" ${sel?'':'disabled'} onclick="doCk()">ЖҰМЫСҚА КЕЛДІМ</button>`}${db&&!isAdm?'':'<p><a class="m" href="#admin">Әкімші панелі</a></p>'}</div>`}
+const DEV=(()=>{try{let v=localStorage.getItem('tn_dev');if(!v){v=crypto.randomUUID?crypto.randomUUID():uid()+uid()+uid();localStorage.setItem('tn_dev',v)}return v}catch(e){return null}})();
+async function doCk(){if(!sel)return toast('Аты-жөніңізді таңдаңыз',0);const e=E(sel);
+if(!db){const t=today(),x=S.a.find(a=>a.emp==sel&&a.date==t);if(x)res={ok:0,n:e.name,t:x.time};else{const tm=nowT();reg(sel,t,tm);res={ok:1,n:e.name,t:tm}}return render()}
+const r=await sb.rpc('check_in',{p_emp:sel,p_dev:DEV});if(r.error||!r.data)return toast('Тіркелмеді, қайта көріңіз',0);
+if(r.data.dev)res={ok:0,dev:1,n:r.data.name||'',t:''};else if(!r.data.ok&&!r.data.time)return toast('Тіркелмеді, қайта көріңіз',0);else res={ok:r.data.ok,n:e.name,t:r.data.time};
+await loadW();render()}
+async function toXl(){if(typeof ExcelJS=='undefined')return toast('ExcelJS жүктелмеді',0);
+const wb=new ExcelJS.Workbook(),sh=(n,h,rows)=>{const s=wb.addWorksheet(n);s.addRow(h);rows.forEach(r=>s.addRow(r));const r=s.getRow(1);r.font={bold:true,color:{argb:'FFFFFFFF'}};r.fill={type:'pattern',pattern:'solid',fgColor:{argb:'FFB45309'}};s.columns.forEach(c=>c.width=22);s.views=[{state:'frozen',ySplit:1}]};
+const wr=[],ws=[...new Set(S.a.map(a=>wk(a.date)))].sort(),ms=[...new Set([...S.a.map(a=>a.date.slice(0,7)),...S.y.map(p=>p.date.slice(0,7))])].sort();
+ws.forEach(w=>wrows(w).forEach(r=>wr.push([w,addD(w,5),r.e.name,r.days,r.acc,r.paid,r.debt])));
+sh('Қызметкерлер',['ID','Аты-жөні','Күндік жалақы','Қабылданған күні','Мәртебесі'],S.e.map(e=>[e.id,e.name,e.rate,e.hired,e.on?'Белсенді':'Белсенді емес']));
+sh('Қатысу тарихы',['Күні','Уақыты','ID','Аты-жөні','Сол күнгі сома'],S.a.slice().sort((a,b)=>(a.date+a.time<b.date+b.time?1:-1)).map(a=>[a.date,a.time,a.emp,E(a.emp).name,a.rate]));
+sh('Нан өндірісі',['Күні','Нан түрі','Саны','Түсініктеме'],S.q.slice().sort((a,b)=>a.date<b.date?1:-1).map(q=>[q.date,q.type,q.qty,q.note]));
+sh('Апталық жалақы',['Апта басы','Апта соңы','Аты-жөні','Жұмыс күні','Есептелген','Төленген','Қарыз'],wr);
+sh('Айлық есеп',['Ай','Аты-жөні','Жұмыс күні','Есептелген','Төленген'],ms.flatMap(m=>mrows(m).map(r=>[m,r.e.name,r.days,r.acc,r.paid])));
+const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([await wb.xlsx.writeBuffer()]));a.download=`TandyrNan_${today()}.xlsx`;a.click()}
+function render(){if(db&&!isAdm&&location.hash=='#admin')return void(document.getElementById('app').innerHTML=loginUI());const c=location.hash=='#checkin'||(db&&!isAdm);document.getElementById('app').innerHTML=c?chk():`<div class="top"><b>🍞 Tandyr Nan</b><span>${today()}${db?` <button class="s" style="color:#fff;border-color:#fff" onclick="logout()">Шығу</button>`:''}</span></div><div class="lay"><nav>${NAV.map(n=>`<a class="${P==n[0]?'on':''}" onclick="go('${n[0]}')">${n[2]} ${n[1]}</a>`).join('')}</nav><main>${PG[P]()}</main></div>`;if(!c&&P=='set')qr()}
+onhashchange=()=>{res=null;sel='';render()};
+setInterval(()=>{const c=document.getElementById('clk');if(c)c.textContent=today()+' '+nowT()},1000);
+PG.att=function(){const rs=S.e.filter(e=>e.on||S.a.some(a=>a.emp==e.id&&a.date==ad)),R=id=>S.a.find(a=>a.emp==id&&a.date==ad);
+return `<h2>Жұмысқа қатысу</h2><div class="c"><div class="f"><label>Күні: <input type="date" value="${ad}" onchange="ad=this.value||today();render()"></label></div><p class="m">QR арқылы келгендер автоматты белгіленеді. Кестеде қызметкерді белгілеп, сол күнгі сомасын енгізіңіз де, «Күнді сақтау» басыңыз. Жалақы осы сомалардан есептеледі.</p></div><div class="c">${tbl(['Келді','Аты-жөні','Уақыты','Сол күнгі сома, ₸'],rs.map(e=>{const r=R(e.id);return [`<input type="checkbox" id="c${e.id}" ${r?'checked':''}>`,esc(e.name),r?r.time:'—',`<input type="number" class="pi" id="m${e.id}" value="${r?r.rate:e.rate}">`]}))}<div class="f" style="margin-top:12px"><button onclick="saveDay()">Күнді сақтау</button><b>Күн жиыны: ${fmt(sum(S.a.filter(a=>a.date==ad),a=>a.rate))}</b></div></div>`};
+function saveDay(){const rs=S.e.filter(e=>e.on||S.a.some(a=>a.emp==e.id&&a.date==ad));let n=0;
+for(const e of rs)if(document.getElementById('c'+e.id).checked&&!(+V('m'+e.id)>0))return toast(e.name+': соманы енгізіңіз',0);
+rs.forEach(e=>{const on=document.getElementById('c'+e.id).checked,amt=+V('m'+e.id),r=S.a.find(a=>a.emp==e.id&&a.date==ad);
+if(on&&!r){S.a.push({id:ad+'_'+e.id,emp:e.id,date:ad,time:'—',rate:amt});lg(`Қатысу қосылды: ${e.name} ${ad} — ${amt}₸`);n++}
+else if(on&&r.rate!=amt){lg(`Сома өзгертілді: ${e.name} ${ad} ${r.rate}₸ → ${amt}₸`);r.rate=amt;n++}
+else if(!on&&r){S.a=S.a.filter(a=>a!==r);lg(`Қатысу өшірілді: ${e.name} ${ad}`);n++}});
+save();render();toast(n?'Күн сақталды':'Өзгеріс жоқ')}
+const loginUI=()=>`<div class="ck"><h1>🍞 Tandyr Nan</h1><h3>Әкімші кіруі</h3><div class="nl"><input id="le" type="email" placeholder="Email" autocomplete="username"><input id="lp" type="password" placeholder="Құпиясөз" autocomplete="current-password"></div><button class="big" onclick="login()">Кіру</button><p><a class="m" href="#checkin">← Тіркеу беті</a></p></div>`;
+async function login(){const r=await sb.auth.signInWithPassword({email:V('le').trim(),password:V('lp')});if(r.error)return toast('Email немесе құпиясөз қате',0);isAdm=true;await loadAll();location.hash='';render()}
+async function logout(){await sb.auth.signOut();isAdm=false;S={e:[],a:[],q:[],y:[],l:[],url:''};location.hash='checkin';await loadW();render()}
+(async()=>{if(!sb){dbs='off';return render()}
+db=sb;S={e:[],a:[],q:[],y:[],l:[],url:''};const r=await sb.auth.getSession();isAdm=!!(r.data&&r.data.session);
+await(isAdm?loadAll():loadW());dbs='on';render();
+setInterval(async()=>{if(!/INPUT|SELECT/.test(document.activeElement.tagName)){await(isAdm?loadAll():loadW());render()}},20000)})();
+render();
+</script></body></html>
